@@ -68,12 +68,11 @@ class Mikodo
      * @throws Exception when using windows because pcntl_fork is not supported on that platform
 	 */
 
-	public function __construct(array $parameters)
+	public function __construct(int $bufferSize = 65535)
 	{
 		if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'){ throw new \Exception("Mikodo is only compatible with unix based systems. Windows does not support pcntl_fork", 1);}
 
-        $this->bufferSize = isset($parameters['bufferSize']) ? $parameters['bufferSize'] : 65535;
-
+        $this->bufferSize = $bufferSize;
         $this->cli = new CLImate;
 	}
 
