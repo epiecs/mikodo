@@ -9,22 +9,22 @@ interface inventoryInterface
      *
      * [
      *     'Hostname_1' => [
-     *         'device_type'    => "junos"
-     *         'port'           => 22
-     *         'username'       => "username"
-     *         'password'       => "password"
-     *         'hostname'       => "hostname or ip"
+     *         'device_type'    => "junos",
+     *         'port'           => 22,
+     *         'username'       => "username",
+     *         'password'       => "password",
+     *         'hostname'       => "hostname or ip",
      *         'groups' => [
      *             "core_switches",
      *             "lab_switches"
      *         ]
-     *     ]
+     *     ],
      *     'Hostname_2' => [
-     *         'device_type'    => "junos"
-     *         'port'           => 22
-     *         'username'       => "username"
-     *         'password'       => "password"
-     *         'hostname'       => "hostname or ip"
+     *         'device_type'    => "junos",
+     *         'port'           => 22,
+     *         'username'       => "username",
+     *         'password'       => "password",
+     *         'hostname'       => "hostname or ip",
      *         'groups' => [
      *             "core_switches"
      *         ]
@@ -109,7 +109,7 @@ interface inventoryInterface
 
     /**
      * Returns the full inventory (defaults, groups, hosts)
-     * 
+     *
      * @return array the complete inventory
      */
     public function inventory() : array;

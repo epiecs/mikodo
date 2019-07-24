@@ -29,7 +29,7 @@ composer require epiecs/mikodo
 - Netbox
 - ...
 
-## Examples:
+## Basic examples:
 
 #### Initializing Mikodo
 
@@ -47,77 +47,180 @@ The size in bytes that is available for each worker for communicating to the par
 $mikodo->bufferSize(65535); // Defaults to 65535
 ```
 
-#### Inventories
+#### Running commands
 
-explanation
+Mikodo uses the same 3 methods like Phpmiko to send commands to devices: cli, operation and configure.
 
-##### Base inventory
-
-preference host > group > defaults
-
-##### Nornir inventory
-
-[Nornir inventory documentation](https://nornir.readthedocs.io/en/stable/tutorials/intro/inventory.html)
-
-##### Extending Base inventory + interface
-
-#### Sending commands
-
-When sending commands you can either provide the resp. function with a string or an array consisting of commands. Either way is fine. When providing an array the commands are run in order.
+When sending commands you can either provide the method with a string or an array consisting of commands. Either way is fine. When providing an array the commands are run in order.
 
 For the difference between the types of commands you can refer to the  [Phpmiko documentation](https://github.com/epiecs/phpmiko)
 
-###### Sending one command as string
+##### Preparing the inventory
+
+To be able to use Mikodo you have to provide it with an inventory. The most basic way is to provide the __inventory()__ method with an array consisting of hosts:
 
 ```php
-echo $device->operation('show interfaces ge-0/0/0');
-```
-
-###### Sending one command as an array
-
-```php
-echo $device->operation([
-	'show interfaces ge-0/0/0',
+$mikodo->inventory([
+    'Hostname_1' => [
+        'device_type'    => "junos",
+        'username'       => "username",
+        'password'       => "password",
+        'hostname'       => "hostname or ip"
+    ],
+    'Hostname_2' => [
+        'device_type'    => "junos",
+        'username'       => "username",
+        'password'       => "password",
+        'hostname'       => "hostname or ip"
+    ]
 ]);
 ```
 
-###### Sending multiple commands
+Each host has the neccesary information for Phpmiko. __device_type__, __username__, __password__ and __hostname__ are required.
+
+##### Sending command(s)
+
+When the inventory has been prepared you can start sending commands.
 
 ```php
-echo $device->operation([
-	'show interfaces ge-0/0/0',
-	'show interfaces ge-0/0/1',
+$results = $mikodo->cli([
+    'date'
+    'ping -c 2 8.8.8.8'
 ]);
 ```
 
-###### Fetching results and output
-
-
-
-All output will be returned as an array where the key is the command that was run
+If all went well you will see output like this. Offcourse in real life you will have (pretty?) colors.
 
 ```plaintext
-array (2) [
-    'run show version' => "fpc0:
---------------------------------------------------------------------------
-Hostname: SW-Junos
-Model: ex3300-48p
-Junos: 15.1R5-S3.4
-JUNOS EX  Software Suite [15.1R5-S3.4]
-JUNOS FIPS mode utilities [15.1R5-S3.4]
-JUNOS Online Documentation [15.1R5-S3.4]
-JUNOS EX 3300 Software Suite [15.1R5-S3.4]
-JUNOS Web Management Platform Package [15.1R5-S3.4]
-"
-    'run show cli' => "CLI complete-on-space set to on
-CLI idle-timeout disabled
-CLI restart-on-upgrade set to on
-CLI screen-length set to 10000
-CLI screen-width set to 400
-CLI terminal is 'vt100'
-CLI is operating in enhanced mode
-CLI timestamp disabled
-CLI working directory is '/var/root'
-"
+Starting mikodo,  2 queued jobs
+[cli]
+        date
+        ping -c 2 8.8.8.8
+=========================================================================> 100%
+Retrieving output from Hostname_2
+```
+
+###### Retrieving results
+
+When you have a variable with the return value of the cli/operation/configure function it will have the following structure:
+
+Each run has the mode in between brackets with a run id. Next up is each hostname that has had commands run and then we have a key per run command.
+
+```php
+[
+    '[cli] :: 5d3861b31c8fd' => [
+        'Hostname_1' => [
+            'date' => "
+                Wed Jul 24 15:48:36 CEST 2019
+                "
+            'ping -c 2 8.8.8' => "
+                PING 8.8.8.8 (8.8.8.8): 56 data bytes
+                64 bytes from 8.8.8.8: icmp_seq=0 ttl=64 time=10.706 ms
+                64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=11.214 ms
+                --- 8.8.8.8 ping statistics ---
+                2 packets transmitted, 2 packets received, 0% packet loss
+                round-trip min/avg/max/stddev = 10.706/10.960/11.214/0.254 ms
+                "
+        ]
+        'Hostname_2' => [
+            'date' => "
+                Wed Jul 24 15:48:36 CEST 2019
+                "
+            'ping -c 2 8.8.8.8' => "
+                PING 8.8.8.8 (8.8.8.8): 56 data bytes
+                64 bytes from 8.8.8.8: icmp_seq=0 ttl=64 time=54.188 ms
+                64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=11.252 ms
+                --- 8.8.8.8 ping statistics ---
+                2 packets transmitted, 2 packets received, 0% packet loss
+                round-trip min/avg/max/stddev = 11.252/32.720/54.188/21.468 ms
+                "
+        ]
+    ]
 ]
 ```
+
+###### Printing results
+
+To output the results to the terminal you just send the returned results to the Mikodo->print() function.
+
+```php
+$results = $mikodo->print($results);
+```
+
+Also, in real life you should get pretty colors.
+
+```plaintext
+Results of run [cli] :: 5d385e3b0e496
+Hostname_1
+date
+
+Wed Jul 24 15:33:48 CEST 2019
+
+
+ping -c 2 8.8.8.8
+
+PING 8.8.8.8 (8.8.8.8): 56 data bytes
+64 bytes from 8.8.8.8 icmp_seq=0 ttl=64 time=10.798 ms
+64 bytes from 8.8.8.8 icmp_seq=1 ttl=64 time=11.348 ms
+--- 8.8.8.8 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max/stddev = 10.798/11.073/11.348/0.275 ms
+
+
+Hostname_2
+date
+
+Wed Jul 24 15:33:48 CEST 2019
+
+
+ping -c 2 8.8.8.8
+
+PING 8.8.8.8 (8.8.8.8): 56 data bytes
+64 bytes from 8.8.8.8 icmp_seq=0 ttl=64 time=11.876 ms
+64 bytes from 8.8.8.8 icmp_seq=1 ttl=64 time=11.193 ms
+--- 8.8.8.8 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max/stddev = 11.193/11.534/11.876/0.341 ms
+
+```
+
+## Inventories
+
+To ease your life Mikodo includes several inventory providers. As of now only the BaseInventory and NornirInventory is implemented. PhpIpam is in the works.
+
+Inventories allow you to easily select specific hosts and/or groups from your inventory. Inventories also allow you to set default values on a global level and/or group level.
+
+However in order to keep everything working the same way no matter the order of setting hosts/groups/defaults some rules have been set.
+
+Basically hosts > groups > defaults. This means that if you set a default setting for a password but set that value in the host itself the host will not take over the default value. Same goes for groups. Group vars are worth less that host vars but more than default vars.
+
+###### Writing your own inventory providers
+
+All inventory providers can extend the base inventory class and should implement the DeviceInterface interface.
+
+##### Base inventory
+
+TODO
+
+##### Nornir inventory
+
+I like Nornir, so I have a nornir inventory :D. I have the following directory structure in my project folder:
+
+```plaintext
+└── inventory
+    ├── defaults.yaml
+    ├── groups.yaml
+    └── hosts.yaml
+```
+
+I can load this directory with the NornirInventory provider and query it just the same way like a can with the base inventory. __The only file that is required is the hosts.yaml file__.
+
+```php
+$nornirInventory = new \Epiecs\Mikodo\InventoryProviders\NornirInventory(__DIR__ . DIRECTORY_SEPARATOR . 'inventory');
+
+$mikodo = new \Epiecs\Mikodo\Mikodo();
+
+$mikodo->inventory($nornirInventory->getGroups(['lab_switches', 'core_switches']));
+```
+
+Be sure to check out the [Nornir inventory documentation](https://nornir.readthedocs.io/en/stable/tutorials/intro/inventory.html)
