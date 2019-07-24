@@ -1,0 +1,28 @@
+{
+    "name": "epiecs/mikodo",
+    "description": "Concurrent unix compatible library on top of phpmiko with inventory management",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gregory Bers",
+            "email": "gregorybers@epiecs.be"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ext-sockets": "*",
+        "ext-pcntl": "*",
+        "epiecs/phpmiko": "dev-master",
+        "symfony/yaml": "^4.3",
+        "league/climate": "^3.5"
+    },
+    "require-dev": {
+        "kint-php/kint": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Epiecs\\Mikodo\\": "src/"
+        }
+    }
+}
