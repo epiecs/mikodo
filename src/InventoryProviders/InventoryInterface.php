@@ -71,14 +71,6 @@ interface inventoryInterface
     public function setDefaults(array $defaults) : void;
 
     /**
-     * Returns all hosts that are currently configured in the inventory
-     *
-     * @return array hosts inventory array
-     */
-
-    public function getAllHosts() : array;
-
-    /**
      * Gets all hosts from the inventory based on the hostnames that are supplied in the
      * $hosts parameter.
      *
@@ -100,17 +92,10 @@ interface inventoryInterface
     public function getGroups(array $groups) : array;
 
     /**
-     * Returns an array containing all the defaults that have been set
-     *
-     * @return array array containing defaults
-     */
-
-    public function getDefaults() : array;
-
-    /**
-     * Returns the full inventory (defaults, groups, hosts)
+     * Returns the full inventory (defaults, groups, hosts) as an array with a top level
+     * element for each of these three categories.
      *
      * @return array the complete inventory
      */
-    public function inventory() : array;
+    public function getInventory() : array;
 }

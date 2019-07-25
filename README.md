@@ -198,9 +198,11 @@ Basically hosts > groups > defaults. This means that if you set a default settin
 
 All inventory providers can extend the base inventory class and should implement the DeviceInterface interface.
 
+The InventoryInterface provides you with a nice structure as how a array containing hosts, groups and defaults should look.
+
 ##### Base inventory
 
-TODO
+First we initialize the base inventory
 
 ##### Nornir inventory
 

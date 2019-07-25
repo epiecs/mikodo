@@ -38,7 +38,9 @@ class BaseInventory implements InventoryInterface
     /**
      * Initialize the inventory.
      *
-     * $mikodo = new \Epiecs\Mikodo\BaseInventory();
+     * @param array $hosts      The hosts for the inventory
+     * @param array $groups     The groups for the inventory
+     * @param array $defaults   The default settings
      */
 
     public function __construct(array $hosts = array(), array $groups = array(), array $defaults = array())
@@ -48,11 +50,32 @@ class BaseInventory implements InventoryInterface
         $this->setDefaults($defaults);
     }
 
+    /**
+     * Sets an array as host(s) as the new hosts in the inventory and applies
+     * group and default settings where hosts to not have the corresponding setting
+     * applied. Hosts settings have preference over group settings and group
+     * settings have preference over default settings.
+     *
+     * @param array $hosts The hosts for the inventory
+     *
+     * @return void
+     */
+
     public function setHosts(array $hosts) : void
     {
         $this->hosts = $hosts;
         $this->mergeConfigs();
     }
+
+    /**
+     * Sets an array of group(s) as the groups in the inventory and applies
+     * the group config to hosts where the hosts are a member of the group and
+     * do not have the global settings defined in the group
+     *
+     * @param array $groups Array containing groups
+     *
+     * @return void
+     */
 
     public function setGroups(array $groups) : void
     {
@@ -60,11 +83,30 @@ class BaseInventory implements InventoryInterface
         $this->mergeConfigs();
     }
 
+    /**
+     * Sets the default settings for all hosts in the inventory. Only applies
+     * these settings if there is no corresponding host or group setting.
+     *
+     * @param array $defaults Array containing defaults
+     *
+     * @return void
+     */
+
     public function setDefaults(array $defaults) : void
     {
         $this->defaults = $defaults;
         $this->mergeConfigs();
     }
+
+    /**
+     * Fetches the hosts from the inventory.
+     *
+     * @param  array $hosts Array containing the hosts that need to be fetched
+     *
+     * @throws Exception When nonexisting hosts are provided
+     *
+     * @return array        Inventory containing all the requested hosts
+     */
 
     public function getHosts(array $hosts) : array
     {
@@ -80,6 +122,16 @@ class BaseInventory implements InventoryInterface
 
         return $filteredInventory;
     }
+
+    /**
+     * Fetches the hosts from the inventory that are a member of the provided groups.
+     *
+     * @param  array $groups Array containing the groups that need to be fetched
+     *
+     * @throws Exception When nonexisting groups are provided
+     *
+     * @return array        Inventory containing all the requested hosts
+     */
 
     public function getGroups(array $groups) : array
     {
@@ -106,17 +158,13 @@ class BaseInventory implements InventoryInterface
         return $filteredInventory;
     }
 
-    public function getDefaults() : array
-    {
-        return $this->defaults;
-    }
+    /**
+     * Fetches the full inventory.
+     *
+     * @return array        Full inventory with a sub key for each config element (hosts/groups/defaults)
+     */
 
-    public function getAllHosts() : array
-    {
-        return $this->hosts;
-    }
-
-    public function inventory() : array
+    public function getInventory() : array
     {
         $inventory = [
             'defaults' => $this->defaults,
@@ -129,6 +177,10 @@ class BaseInventory implements InventoryInterface
 
     /**
      * Private functions
+     */
+
+    /**
+     * Merges the configs in the class in the correct order hosts > groups > defaults
      */
 
     private function mergeConfigs() : void
