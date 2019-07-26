@@ -155,19 +155,16 @@ class Mikodo
 
     public function print(array $results) : void
     {
-        foreach($results as $run => $runResults)
+        $this->cli->cyan("Results of run {$run}");
+
+        foreach($runResults as $hostname => $commands)
         {
-            $this->cli->cyan("Results of run {$run}");
+            $this->cli->lightGreen($hostname);
 
-            foreach($runResults as $hostname => $commands)
+            foreach($commands as $command => $output)
             {
-                $this->cli->lightGreen($hostname);
-
-                foreach($commands as $command => $output)
-                {
-                    $this->cli->lightYellow($command);
-                    $this->cli->out($output . "\n");
-                }
+                $this->cli->lightYellow($command);
+                $this->cli->out($output . "\n");
             }
         }
     }
@@ -229,7 +226,7 @@ class Mikodo
             }
         }
 
-        $results[$runId] = array();
+        $results = array();
 
         while(count($forks) > 0)
         {
@@ -244,7 +241,7 @@ class Mikodo
                     $progress->advance(1, "Retrieving output from {$hostname}");
 
                     pcntl_waitpid($pid, $status);
-                    $results[$runId][$hostname] = unserialize(trim(socket_read($sockets[$hostname][1], $this->bufferSize)));
+                    $results[$hostname] = unserialize(trim(socket_read($sockets[$hostname][1], $this->bufferSize)));
                     socket_close($sockets[$hostname][1]);
 
                     unset($forks[$pid]);

@@ -202,7 +202,15 @@ The InventoryInterface provides you with a nice structure as how a array contain
 
 ##### Base inventory
 
-First we initialize the base inventory
+The Base inventory can be initialized in three always
+
+- via the constructor
+- via setters
+- a combination of both
+
+For the sake of brevity I will use the following inventory as reference:
+
+TODO    doc_inventory gebruiken en commandos uitleggen
 
 ##### Nornir inventory
 
