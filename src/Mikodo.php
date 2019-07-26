@@ -155,9 +155,8 @@ class Mikodo
 
     public function print(array $results) : void
     {
-        $this->cli->cyan("Results of run {$run}");
 
-        foreach($runResults as $hostname => $commands)
+        foreach($results as $hostname => $commands)
         {
             $this->cli->lightGreen($hostname);
 
