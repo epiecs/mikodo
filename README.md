@@ -190,6 +190,8 @@ To ease your life Mikodo includes several inventory providers. As of now only th
 
 Inventories allow you to easily select specific hosts and/or groups from your inventory. Inventories also allow you to set default values on a global level and/or group level.
 
+So basically you prep one or more inventories and then select some hosts/groups from that inventory that you feed to the inventory function of mikodo.
+
 However in order to keep everything working the same way no matter the order of setting hosts/groups/defaults some rules have been set.
 
 Basically hosts > groups > defaults. This means that if you set a default setting for a password but set that value in the host itself the host will not take over the default value. Same goes for groups. Group vars are worth less that host vars but more than default vars.
@@ -208,9 +210,74 @@ The Base inventory can be initialized in three always
 - via setters
 - a combination of both
 
-For the sake of brevity I will use the following inventory as reference:
+__example__
 
-TODO    doc_inventory gebruiken en commandos uitleggen
+```php
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Epiecs\Mikodo\Mikodo;
+use Epiecs\Mikodo\InventoryProviders\BaseInventory;
+
+$baseInventory = new BaseInventory();
+
+// Sethosts is used here but you can always use the constructor
+// if you'd like
+
+$baseInventory->setHosts([
+    'Hostname_1' => [
+      'device_type' => 'junos',
+      'port'        => 22,
+      'username'    => 'my_default_username',
+      'password'    => 'my_default_password',
+      'hostname'    => '192.168.0.1',
+      'groups'      => [
+          'core_switches',
+      ],
+    ],
+    'Hostname_2' => [
+      'device_type' => 'junos',
+      'port'        => 22,
+      'username'    => 'my_default_username',
+      'password'    => 'my_default_password',
+      'hostname'    => '192.168.0.1',
+      'groups'      => [
+          'core_switches'
+      ]
+    ],
+    'Hostname_3' => [
+      'device_type' => 'cisco_ios',
+      'port'        => 22,
+      'username'    => 'my_default_username',
+      'password'    => 'my_default_password',
+      'hostname'    => '172.16.2.10',
+      'groups'      => [
+          'lab_switches', 'core_switches'
+      ]
+    ],
+]);
+
+$mikodo = new Mikodo();
+
+$mikodo->inventory($baseInventory->getGroups(['lab_swithches', 'core_switches']));
+```
+
+The following methods are supported:
+
+```php
+$baseInventory = new BaseInventory(array $hosts = array(), array $groups = array(), array $defaults = array());
+
+// Setting the inventory
+$baseInventory->setHosts(array $hosts);
+$baseInventory->setGroups(array $groups);
+$baseInventory->setDefaults(array $defaults);
+
+// Getting/fetcing the inventory
+$baseInventory->getHosts(array $hosts);
+$baseInventory->getGroups(array $groups);
+
+// Get the full inventory
+$baseInventory->getInventory();
+```
 
 ##### Nornir inventory
 
@@ -224,6 +291,57 @@ I like Nornir, so I have a nornir inventory :D. I have the following directory s
 ```
 
 I can load this directory with the NornirInventory provider and query it just the same way like a can with the base inventory. __The only file that is required is the hosts.yaml file__.
+
+For the sake of brevity I will use the following inventory as reference. Although brief it does suffice as an example to show you priorities of all inventory components.
+
+__default.yaml__
+```yaml
+---
+port: 22
+username: my_default_username
+password: my_default_password
+```
+
+__groups.yaml__
+```yaml
+---
+core_switches:
+    device_type: junos
+
+lab_switches:
+    device_type: cisco_ios
+    port: 2000
+```
+
+__hosts.yaml__
+```yaml
+---
+Hostname_1:
+    hostname: 192.168.0.1
+    groups:
+        - core_switches
+Hostname_2:
+    hostname: 192.168.0.1
+    groups:
+        - core_switches
+Hostname_3:
+    hostname: 172.16.2.10
+    groups:
+        - lab_switches
+Hostname_4:
+    hostname: 172.16.2.20
+    groups:
+        - lab_switches
+Hostname_5:
+    hostname: 172.16.2.30
+    groups:
+        - lab_switches
+Hostname_6:
+    hostname: 172.16.2.50
+    groups:
+        - lab_switches
+        - core_switches
+```
 
 ```php
 $nornirInventory = new \Epiecs\Mikodo\InventoryProviders\NornirInventory(__DIR__ . DIRECTORY_SEPARATOR . 'inventory');
