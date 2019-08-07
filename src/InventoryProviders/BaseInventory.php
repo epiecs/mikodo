@@ -110,7 +110,7 @@ class BaseInventory implements InventoryInterface
 
     public function getHosts(array $hosts) : array
     {
-        $nonExistingHosts = array_diff(array_keys($hosts), $this->hosts);
+        $nonExistingHosts = array_diff($hosts, array_keys($this->hosts));
         if(count($nonExistingHosts) > 0)
         {
             throw new \Exception("Host(s) (" . implode(", ", $nonExistingHosts) . ") do not exist.", 1);
