@@ -21,11 +21,12 @@ composer require epiecs/mikodo
 
 ###### Implemented
 
-- Nornir Inventory
+- Basic
+- Nornir
+- PhpIpam
 
 ###### Planned
 
-- PhpIpam
 - Netbox
 - ...
 
@@ -279,9 +280,69 @@ $baseInventory->getGroups(array $groups);
 $baseInventory->getInventory();
 ```
 
+##### PhpIpam inventory
+
+If you have a running PhpIpam with a device inventory you can us this for Mikodo. The inventory provider will fetch all devices from phpipam and will automatically apply some groups to each hostname as long as the corresponding value in phpipam exists and isnt null.
+
+Afterwards if neccesary you can still set group and default settings via the provided inventory methods.
+
+A group will be applied for:
+
+- each device type that is know in phpipam.
+- the rack(s) known for that devices
+- the section(s) known for that device
+- the location(s) known for that device
+- if there are custom fields set for a device.
+
+If a custom field is supplied for username, password, port and/or device_type then this will not be applied as a group but directly to the object. This way it is possible to set some defaults in PhpIpam
+
+The following authentication methods are supported:
+
+- User token (unencrypted, username and password is required)
+- SSL with user token (encrypted, username and password is required), provide a https api link
+- SSL with app code token (encrypted, appCode is required), provide a https link
+
+```php
+
+$ipamUrl  = 'https://phpipam.local/api'
+$appId    = 'ipamappId'
+$username = 'ipamuser';
+$password = 'ipampassword';
+
+$appCode  = 'ipamAppCode';
+
+// When using username and password
+$phpipamInventory = new \Epiecs\Mikodo\InventoryProviders\PhpipamInventory($ipamUrl, $appId, $username, $password);
+
+// When using an app code token
+$phpipamInventory = new \Epiecs\Mikodo\InventoryProviders\PhpipamInventory($ipamUrl, $appId, "", "", $appCode);
+
+// Set the group and default settings if neccesary
+$phpipamInventory->setGroups([
+    'switch' => [
+        'device_type' => "cisco_ios",
+        'password'    => "password"
+    ],
+    'firewall' => [
+        'device_type' => "junos",
+        'port'        => 2020
+    ]
+]);
+
+$phpipamInventory->setDefaults([
+     'port'     => 22,
+     'username' => "defaultusername",
+     'password' => "defaultpassword"
+]);
+
+$mikodo = new \Epiecs\Mikodo\Mikodo();
+
+$mikodo->inventory($phpipamInventory->getGroups(['Switch']));
+```
+
 ##### Nornir inventory
 
-I like Nornir, so I have a nornir inventory :D. I have the following directory structure in my project folder:
+If you like Nornir you most likely already have a Nornir inventory. I have the following directory structure in my project folder:
 
 ```plaintext
 └── inventory

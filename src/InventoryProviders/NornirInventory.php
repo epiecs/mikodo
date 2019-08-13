@@ -20,7 +20,7 @@ class NornirInventory extends BaseInventory implements InventoryInterface
 	 *
 	 * @param string $inventoryDirectory Folder path to the nornir inventory.
 	 *
-	 * $mikodo = new \Epiecs\Mikodo\NornirInventory($inventoryDirectory);
+	 * $inventory = new \Epiecs\Mikodo\NornirInventory($inventoryDirectory);
 	 *
      * @throws Exception when the directory is empty or does not exist
 	 */

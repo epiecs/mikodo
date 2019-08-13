@@ -84,8 +84,6 @@ class Mikodo
      * Adds one or more hosts to the inventory. Check the inventory public variable to see how a
      * host should look.
      *
-     * This is a fluent interface that can be chained
-     *
      * @param  mixed $inventory A fully qualified host or array of hosts
      * @return void
      *
