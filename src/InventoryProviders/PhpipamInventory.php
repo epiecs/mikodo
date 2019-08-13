@@ -197,27 +197,28 @@ class PhpipamInventory extends BaseInventory implements InventoryInterface
 
         $customFields = array_flip($customFields);
 
-
         foreach($ipamDevices as $ipamDevice)
         {
-            $this->hosts[$ipamDevice['hostname']]['hostname'] = $ipamDevice['ip'];
+            $hosts[$ipamDevice['hostname']]['hostname'] = $ipamDevice['ip'];
 
-            !in_array($ipamDevice['type'], [0, null]) ? $this->hosts[$ipamDevice['hostname']]['groups'][]     = $deviceTypes[$ipamDevice['type']] : false;
-            !in_array($ipamDevice['sections'], [0, null]) ? $this->hosts[$ipamDevice['hostname']]['groups'][] = $sections[$ipamDevice['sections']] : false;
-            !in_array($ipamDevice['location'], [0, null]) ? $this->hosts[$ipamDevice['hostname']]['groups'][] = $locations[$ipamDevice['location']] : false;
-            !in_array($ipamDevice['rack'], [0, null]) ? $this->hosts[$ipamDevice['hostname']]['groups'][]     = $racks[$ipamDevice['rack']] : false;
+            !in_array($ipamDevice['type'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][]     = $deviceTypes[$ipamDevice['type']] : false;
+            !in_array($ipamDevice['sections'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][] = $sections[$ipamDevice['sections']] : false;
+            !in_array($ipamDevice['location'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][] = $locations[$ipamDevice['location']] : false;
+            !in_array($ipamDevice['rack'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][]     = $racks[$ipamDevice['rack']] : false;
 
             foreach($customFields as $fieldName => $ipamFieldName)
             {
                 if(in_array($fieldName, $this->hostFields))
                 {
-                    $ipamDevice[$ipamFieldName] != null ? $this->hosts[$ipamDevice['hostname']][$fieldName] = $ipamDevice[$ipamFieldName] : false;
+                    $ipamDevice[$ipamFieldName] != null ? $hosts[$ipamDevice['hostname']][$fieldName] = $ipamDevice[$ipamFieldName] : false;
                 }
                 else
                 {
-                    !in_array($ipamDevice[$ipamFieldName], [0, null]) ? $this->hosts[$ipamDevice['hostname']]['groups'][] = $ipamDevice[$ipamFieldName] : false;
+                    !in_array($ipamDevice[$ipamFieldName], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][] = $ipamDevice[$ipamFieldName] : false;
                 }
             }
         }
+
+        $this->setHosts($hosts);
     }
 }

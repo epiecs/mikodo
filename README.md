@@ -187,7 +187,7 @@ round-trip min/avg/max/stddev = 11.193/11.534/11.876/0.341 ms
 
 ## Inventories
 
-To ease your life Mikodo includes several inventory providers. As of now only the BaseInventory and NornirInventory is implemented. PhpIpam is in the works.
+To ease your life Mikodo includes several inventory providers.
 
 Inventories allow you to easily select specific hosts and/or groups from your inventory. Inventories also allow you to set default values on a global level and/or group level.
 
@@ -197,15 +197,15 @@ However in order to keep everything working the same way no matter the order of 
 
 Basically hosts > groups > defaults. This means that if you set a default setting for a password but set that value in the host itself the host will not take over the default value. Same goes for groups. Group vars are worth less that host vars but more than default vars.
 
-###### Writing your own inventory providers
+### Writing your own inventory providers
 
 All inventory providers can extend the base inventory class and should implement the DeviceInterface interface.
 
 The InventoryInterface provides you with a nice structure as how a array containing hosts, groups and defaults should look.
 
-##### Base inventory
+### Base inventory
 
-The Base inventory can be initialized in three always
+The Base inventory can be initialized in three ways
 
 - via the constructor
 - via setters
@@ -221,8 +221,24 @@ use Epiecs\Mikodo\InventoryProviders\BaseInventory;
 
 $baseInventory = new BaseInventory();
 
-// Sethosts is used here but you can always use the constructor
-// if you'd like
+// Sethosts is used here but you can always use the constructor if you'd like
+
+$baseInventory->setGroups([
+    'core_switches' => [
+        'device_type' => "cisco_ios",
+    ],
+    'lab_switches' => [
+        'username'    => 'lab_username',
+        'password'    => 'lab_password',
+        'port'        => 2020
+    ]
+]);
+
+$baseInventory->setDefaults([
+     'port'     => 22,
+     'username' => "defaultusername",
+     'password' => "defaultpassword"
+]);
 
 $baseInventory->setHosts([
     'Hostname_1' => [
@@ -248,11 +264,10 @@ $baseInventory->setHosts([
     'Hostname_3' => [
       'device_type' => 'cisco_ios',
       'port'        => 22,
-      'username'    => 'my_default_username',
-      'password'    => 'my_default_password',
       'hostname'    => '172.16.2.10',
       'groups'      => [
-          'lab_switches', 'core_switches'
+          'lab_switches',
+          'core_switches'
       ]
     ],
 ]);
@@ -280,7 +295,7 @@ $baseInventory->getGroups(array $groups);
 $baseInventory->getInventory();
 ```
 
-##### PhpIpam inventory
+### PhpIpam inventory
 
 If you have a running PhpIpam with a device inventory you can us this for Mikodo. The inventory provider will fetch all devices from phpipam and will automatically apply some groups to each hostname as long as the corresponding value in phpipam exists and isnt null.
 
@@ -340,7 +355,7 @@ $mikodo = new \Epiecs\Mikodo\Mikodo();
 $mikodo->inventory($phpipamInventory->getGroups(['Switch']));
 ```
 
-##### Nornir inventory
+### Nornir inventory
 
 If you like Nornir you most likely already have a Nornir inventory. I have the following directory structure in my project folder:
 
