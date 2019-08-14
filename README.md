@@ -37,7 +37,7 @@ composer require epiecs/mikodo
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
 
-$device = new \Epiecs\Mikodo\Mikodo();
+$mikodo = new \Epiecs\Mikodo\Mikodo();
 ```
 
 ##### Buffer size

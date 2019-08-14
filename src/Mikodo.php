@@ -229,7 +229,7 @@ class Mikodo
         {
             //We use a while loop on top of the foreach to check if a process has finished. That way we can
             //efficiently process returned output without having to wait on devices that are stalling before the
-            //current device in the queue
+            //next device in the queue
 
             foreach($forks as $pid => $hostname)
             {
