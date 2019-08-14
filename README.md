@@ -9,7 +9,7 @@ Concurrent library on top of phpmiko. Speeds up the process of sending commands.
 - ext-sockets
 - ext-pcntl
 
-- A UNIX or BSD OS. Native windows is not supported ATM but you can use WSL.
+- A UNIX or BSD OS. Native windows is not supported at the moment but you can use WSL.
 
 #### Installation:
 
@@ -200,6 +200,8 @@ Basically hosts > groups > defaults. This means that if you set a default settin
 ### Writing your own inventory providers
 
 All inventory providers can extend the base inventory class and should implement the DeviceInterface interface.
+
+It is reccomended to extend the baseInventory class and use the sethosts/setgroups/setdefaults commands. These commands will make sure that the config is merged correctly as expected.
 
 The InventoryInterface provides you with a nice structure as how a array containing hosts, groups and defaults should look.
 
@@ -426,5 +428,3 @@ $mikodo = new \Epiecs\Mikodo\Mikodo();
 
 $mikodo->inventory($nornirInventory->getGroups(['lab_switches', 'core_switches']));
 ```
-
-Be sure to check out the [Nornir inventory documentation](https://nornir.readthedocs.io/en/stable/tutorials/intro/inventory.html)
