@@ -95,7 +95,7 @@ class PhpipamInventory extends BaseInventory implements InventoryInterface
      * @param string  $appCode  Your phpipam app code token, required if you use an app code
      */
 
-	public function __construct(string $apiUrl, string $appId, string $username = "", string $password = "", string $appCode = "")
+	public function __construct(string $apiUrl, string $appId, string $username = "", string $password = "", string $appCode = "") :void
 	{
         $apiUrlRegex = "/(?<apiurl>(?:https|http):\/\/[A-Za-z0-9\.]+\/api).*/m";
 

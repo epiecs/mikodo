@@ -208,6 +208,7 @@ class Mikodo
 
             if($pid == 0)
             {
+                cli_set_process_title($hostname);
                 $device = new \Epiecs\PhpMiko\ConnectionHandler($deviceDetails);
 
                 $result =  $device->$commandType($commands);
@@ -215,7 +216,7 @@ class Mikodo
                 socket_write($sockets[$hostname][0], str_pad(serialize($result), $this->bufferSize), $this->bufferSize);
                 socket_close($sockets[$hostname][0]);
 
-                exit();
+                exit;
             }
             elseif($pid > 0)
             {
@@ -233,8 +234,8 @@ class Mikodo
 
             foreach($forks as $pid => $hostname)
             {
-                if(posix_getpgid($pid) == false) // proc has exited
-                {
+                //if(posix_getpgid($pid) == false) // proc has exited
+                //{
                     $progress->advance(1, "Retrieving output from {$hostname}");
 
                     pcntl_waitpid($pid, $status);
@@ -242,7 +243,7 @@ class Mikodo
                     socket_close($sockets[$hostname][1]);
 
                     unset($forks[$pid]);
-                }
+                //}
             }
         }
 
