@@ -1,7 +1,7 @@
 Mikodo
 =======
 
-Concurrent library on top of phpmiko. Speeds up the process of sending commands. Libraries are bundled (or planned) to be able to use different providers such as Nornir yaml files, PhpIpam, etc...
+Concurrent library on top of phpmiko. Speeds up the process of sending commands. There are included libraries for inventory management Libraries. Supported libraries include and are not limited to: Nornir yaml files, PhpIpam,...
 
 #### Requires:
 
@@ -42,7 +42,7 @@ $mikodo = new \Epiecs\Mikodo\Mikodo();
 
 ##### Buffer size
 
-The size in bytes that is available for each worker for communicating to the parent process. Set this to a higher number if you require a lot of text to be sent (eg.) complete config files.
+The size in bytes that is available for each worker for communicating to the parent process. Set this to a higher number if you require a lot of text to be sent (eg.) complete config files. You can set this lower to reduce memory usage but you might not receive all output.
 
 ```php
 $mikodo->bufferSize(65535); // Defaults to 65535
@@ -58,7 +58,7 @@ For the difference between the types of commands you can refer to the  [Phpmiko 
 
 ##### Preparing the inventory
 
-To be able to use Mikodo you have to provide it with an inventory. The most basic way is to provide the __inventory()__ method with an array consisting of hosts:
+Mikodo makes use of an inventory to perform its magic. The most basic way is to provide the __inventory()__ method with an array consisting of hosts:
 
 ```php
 $mikodo->inventory([
@@ -77,7 +77,7 @@ $mikodo->inventory([
 ]);
 ```
 
-Each host has the neccesary information for Phpmiko. __device_type__, __username__, __password__ and __hostname__ are required.
+Each host should at least include the most basic required information for Phpmiko: __device_type__, __username__, __password__ and __hostname__.
 
 ##### Sending command(s)
 
@@ -85,7 +85,7 @@ When the inventory has been prepared you can start sending commands.
 
 ```php
 $results = $mikodo->cli([
-    'date'
+    'date',
     'ping -c 2 8.8.8.8'
 ]);
 ```
@@ -103,60 +103,54 @@ Retrieving output from Hostname_2
 
 ###### Retrieving results
 
-When you have a variable with the return value of the cli/operation/configure function it will have the following structure:
-
-Each run has the mode in between brackets with a run id. Next up is each hostname that has had commands run and then we have a key per run command.
+Mikodo will return the values in the form of an array where you can expect a key for each host and within the key of that host another key per command that has been run.
 
 ```php
 [
-    '[cli] :: 5d3861b31c8fd' => [
-        'Hostname_1' => [
-            'date' => "
-                Wed Jul 24 15:48:36 CEST 2019
-                "
-            'ping -c 2 8.8.8' => "
-                PING 8.8.8.8 (8.8.8.8): 56 data bytes
-                64 bytes from 8.8.8.8: icmp_seq=0 ttl=64 time=10.706 ms
-                64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=11.214 ms
-                --- 8.8.8.8 ping statistics ---
-                2 packets transmitted, 2 packets received, 0% packet loss
-                round-trip min/avg/max/stddev = 10.706/10.960/11.214/0.254 ms
-                "
-        ]
-        'Hostname_2' => [
-            'date' => "
-                Wed Jul 24 15:48:36 CEST 2019
-                "
-            'ping -c 2 8.8.8.8' => "
-                PING 8.8.8.8 (8.8.8.8): 56 data bytes
-                64 bytes from 8.8.8.8: icmp_seq=0 ttl=64 time=54.188 ms
-                64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=11.252 ms
-                --- 8.8.8.8 ping statistics ---
-                2 packets transmitted, 2 packets received, 0% packet loss
-                round-trip min/avg/max/stddev = 11.252/32.720/54.188/21.468 ms
-                "
-        ]
+    'Hostname_1' => [
+        'date' => "
+            Wed Jul 24 15:48:36 CEST 2019
+            "
+        'ping -c 2 8.8.8' => "
+            PING 8.8.8.8 (8.8.8.8): 56 data bytes
+            64 bytes from 8.8.8.8: icmp_seq=0 ttl=64 time=10.706 ms
+            64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=11.214 ms
+            --- 8.8.8.8 ping statistics ---
+            2 packets transmitted, 2 packets received, 0% packet loss
+            round-trip min/avg/max/stddev = 10.706/10.960/11.214/0.254 ms
+            "
+    ]
+    'Hostname_2' => [
+        'date' => "
+            Wed Jul 24 15:48:36 CEST 2019
+            "
+        'ping -c 2 8.8.8.8' => "
+            PING 8.8.8.8 (8.8.8.8): 56 data bytes
+            64 bytes from 8.8.8.8: icmp_seq=0 ttl=64 time=54.188 ms
+            64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=11.252 ms
+            --- 8.8.8.8 ping statistics ---
+            2 packets transmitted, 2 packets received, 0% packet loss
+            round-trip min/avg/max/stddev = 11.252/32.720/54.188/21.468 ms
+            "
     ]
 ]
 ```
 
 ###### Printing results
 
-To output the results to the terminal you just send the returned results to the Mikodo->print() function.
+To output the results to the terminal you just provide the returned results to the Mikodo->print() function.
 
 ```php
-$results = $mikodo->print($results);
+$mikodo->print($results);
 ```
 
 Also, in real life you should get pretty colors.
 
 ```plaintext
-Results of run [cli] :: 5d385e3b0e496
 Hostname_1
 date
 
 Wed Jul 24 15:33:48 CEST 2019
-
 
 ping -c 2 8.8.8.8
 
@@ -167,12 +161,10 @@ PING 8.8.8.8 (8.8.8.8): 56 data bytes
 2 packets transmitted, 2 packets received, 0% packet loss
 round-trip min/avg/max/stddev = 10.798/11.073/11.348/0.275 ms
 
-
 Hostname_2
 date
 
 Wed Jul 24 15:33:48 CEST 2019
-
 
 ping -c 2 8.8.8.8
 
@@ -189,21 +181,24 @@ round-trip min/avg/max/stddev = 11.193/11.534/11.876/0.341 ms
 
 To ease your life Mikodo includes several inventory providers.
 
-Inventories allow you to easily select specific hosts and/or groups from your inventory. Inventories also allow you to set default values on a global level and/or group level.
+Inventories allow you to easily select specific hosts and/or groups from your inventory. Inventories also allow you to set default values on a global and/or group level.
 
-So basically you prep one or more inventories and then select some hosts/groups from that inventory that you feed to the inventory function of mikodo.
+You can even mix and match different inventories. One example can be that you load all hosts from PhpIpam and supply a default username/password via a simpleinventory.
 
-However in order to keep everything working the same way no matter the order of setting hosts/groups/defaults some rules have been set.
 
-Basically hosts > groups > defaults. This means that if you set a default setting for a password but set that value in the host itself the host will not take over the default value. Same goes for groups. Group vars are worth less that host vars but more than default vars.
+One caveat that you have to take into account is the order in which the settings are applied.
+
+The order of preference is hosts > groups > defaults. Imagine a situation where you have an inventory and have set a default username and password in the default settings. Within your inventory you also have one host where there is a password set within the host config.
+
+That host will take the password defined within the host while other hosts that do not have a password set at host (or group level) will fall back to the password set in the default settings.
 
 ### Writing your own inventory providers
 
 All inventory providers can extend the base inventory class and should implement the DeviceInterface interface.
 
-It is reccomended to extend the baseInventory class and use the sethosts/setgroups/setdefaults commands. These commands will make sure that the config is merged correctly as expected.
+It is recommended to extend the baseInventory class and use the sethosts/setgroups/setdefaults commands. These commands will make sure that the config is merged correctly as expected.
 
-The InventoryInterface provides you with a nice structure as how a array containing hosts, groups and defaults should look.
+The InventoryInterface provides you with a nice structure as how a array containing hosts, groups and defaults should function.
 
 ### Base inventory
 
@@ -289,7 +284,7 @@ $baseInventory->setHosts(array $hosts);
 $baseInventory->setGroups(array $groups);
 $baseInventory->setDefaults(array $defaults);
 
-// Getting/fetcing the inventory
+// Getting/fetching the inventory
 $baseInventory->getHosts(array $hosts);
 $baseInventory->getGroups(array $groups);
 
@@ -299,9 +294,9 @@ $baseInventory->getInventory();
 
 ### PhpIpam inventory
 
-If you have a running PhpIpam with a device inventory you can us this for Mikodo. The inventory provider will fetch all devices from phpipam and will automatically apply some groups to each hostname as long as the corresponding value in phpipam exists and isnt null.
+Mikodo can use an existing instance of PhpIpam. The inventory provider will fetch all devices from phpipam and will automatically apply some groups to each hostname as long as the corresponding value in phpipam exists and isn't null.
 
-Afterwards if neccesary you can still set group and default settings via the provided inventory methods.
+Afterwards if deemed neccesary you can still set group and/or default settings via the provided inventory methods.
 
 A group will be applied for:
 
@@ -370,7 +365,7 @@ If you like Nornir you most likely already have a Nornir inventory. I have the f
 
 I can load this directory with the NornirInventory provider and query it just the same way like a can with the base inventory. __The only file that is required is the hosts.yaml file__.
 
-For the sake of brevity I will use the following inventory as reference. Although brief it does suffice as an example to show you priorities of all inventory components.
+For the sake of simplicity I will use the following inventory as reference. Although brief it does suffice as an example to show you priorities of all inventory components.
 
 __default.yaml__
 ```yaml
