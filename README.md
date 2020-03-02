@@ -190,7 +190,7 @@ One caveat that you have to take into account is the order in which the settings
 
 The order of preference is hosts > groups > defaults. Imagine a situation where you have an inventory and have set a default username and password in the default settings. Within your inventory you also have one host where there is a password set within the host config.
 
-That host will take the password defined within the host while other hosts that do not have a password set at host (or group level) will fall back to the password set in the default settings.
+The password defined in the host will take precedence over the password provided in the default settings.
 
 ### Writing your own inventory providers
 
@@ -307,6 +307,8 @@ A group will be applied for:
 - if there are custom fields set for a device.
 
 If a custom field is supplied for username, password, port and/or device_type then this will not be applied as a group but directly to the object. This way it is possible to set some defaults in PhpIpam
+
+If you wish you can also provide a custom field named 'groups' containing comma delimited groups. These will be added to the groups known for that device.
 
 The following authentication methods are supported:
 
