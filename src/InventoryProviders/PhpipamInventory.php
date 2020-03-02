@@ -172,8 +172,8 @@ class PhpipamInventory extends BaseInventory implements InventoryInterface
         }
 
         // Fetch locations
-        $response        = $phpIpamApi->request("GET", "tools/racks", ['verify' => false]);
-        $ipamRacks   = json_decode((string) $response->getBody(), true)['data'];
+        $response  = $phpIpamApi->request("GET", "tools/racks", ['verify' => false]);
+        $ipamRacks = json_decode((string) $response->getBody(), true)['data'];
 
         $racks = array();
 
@@ -210,13 +210,36 @@ class PhpipamInventory extends BaseInventory implements InventoryInterface
 
             foreach($customFields as $fieldName => $ipamFieldName)
             {
+                /**
+                 * If the custom field is one of the know host fields the custom field will be applied to the host and not as a group. The current host fields
+                 * are username, password, port and device_type
+                 *
+                 * All other custom fields are applied as a group on top of the other known groups.
+                 *
+                 * If a custom field is found with the name groups (custom_groups in phpipam) it will be split (",") and trimmed and each value will be added as a group
+                 */
+
                 if(in_array($fieldName, $this->hostFields))
                 {
                     $ipamDevice[$ipamFieldName] != null ? $hosts[$ipamDevice['hostname']][$fieldName] = $ipamDevice[$ipamFieldName] : false;
                 }
                 else
                 {
-                    !in_array($ipamDevice[$ipamFieldName], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][] = $ipamDevice[$ipamFieldName] : false;
+                    // Check if the custom field is set and has a value set before we add it to the groups
+
+                    if(isset($ipamDevice[$ipamFieldName]) && !in_array($ipamDevice[$ipamFieldName], ["", null]))
+                    {
+                        if($ipamFieldName == 'custom_groups')
+                        {
+                            $customGroups = explode(",", $ipamDevice[$ipamFieldName]);
+                            $customGroups = array_map('trim', $customGroups);
+                            $hosts[$ipamDevice['hostname']]['groups'] = array_merge($hosts[$ipamDevice['hostname']]['groups'], $customGroups);
+                        }
+                        else
+                        {
+                            $hosts[$ipamDevice['hostname']]['groups'][] = $ipamDevice[$ipamFieldName];
+                        }
+                    }
                 }
             }
         }

@@ -306,9 +306,9 @@ A group will be applied for:
 - the location(s) known for that device
 - if there are custom fields set for a device.
 
-If a custom field is supplied for username, password, port and/or device_type then this will not be applied as a group but directly to the object. This way it is possible to set some defaults in PhpIpam
+If a custom field is supplied for **username, password, port and/or device_type** then this will not be applied as a group but directly to the host object. This way it is possible to set some defaults in PhpIpam
 
-If you wish you can also provide a custom field named 'groups' containing comma delimited groups. These will be added to the groups known for that device.
+If you wish you can also provide a custom field named **'groups'** containing comma delimited groups. These will be added to the groups known for that device.
 
 The following authentication methods are supported:
 
@@ -365,7 +365,7 @@ If you like Nornir you most likely already have a Nornir inventory. I have the f
     └── hosts.yaml
 ```
 
-I can load this directory with the NornirInventory provider and query it just the same way like a can with the base inventory. __The only file that is required is the hosts.yaml file__.
+You can load this directory with the NornirInventory provider and query it just the same way like a can with the base inventory. __The only file that is required is the hosts.yaml file__.
 
 For the sake of simplicity I will use the following inventory as reference. Although brief it does suffice as an example to show you priorities of all inventory components.
 
