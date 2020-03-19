@@ -133,29 +133,47 @@ class BaseInventory implements InventoryInterface
      * @return array        Inventory containing all the requested hosts
      */
 
-    public function getGroups(array $groups) : array
+    public function getGroups(array $groups, array $filterGroups = array()) : array
     {
         $groupColumn = array_column($this->hosts, 'groups');
+
 
         $assignedHostGroups = array();
 
         foreach($groupColumn as $hostGroups)
         {
-            $assignedHostGroups = array_merge($assignedHostGroups, $hostGroups);
+            $assignedHostGroups = array_unique(array_merge($assignedHostGroups, $hostGroups));
         }
 
+        $nonExistingGroups       = array_diff($groups, $assignedHostGroups);
+        $nonExistingFilterGroups = array_diff($filterGroups, $assignedHostGroups);
 
-        $nonExistingGroups = array_diff($groups, $assignedHostGroups);
-        if(count($nonExistingGroups) > 0)
+        if(count($nonExistingGroups) > 0 || count($nonExistingFilterGroups) > 0)
         {
-            throw new \Exception("No host(s) assigned to group(s) (" . implode(", ", $nonExistingGroups) . ").", 1);
+            throw new \Exception("No host(s) assigned to group(s) (" . implode(", ", array_merge($nonExistingGroups, $nonExistingFilterGroups)) . ").", 1);
         }
 
-        $filteredInventory = array_filter($this->hosts, function ($host) use ($groups) {
+        /**
+         * First build the entire inventory with all the groups that are requested
+         */
+
+        $inventory = array_filter($this->hosts, function ($host) use ($groups) {
             return count(array_intersect($host['groups'], $groups)) > 0 ? true : false;
         });
 
-        return $filteredInventory;
+        /**
+         * If filterGroups are defined we iterate the built inventory and filter
+         * where needed
+         */
+
+        if(count($filterGroups) > 0)
+        {
+            $inventory = array_filter($inventory, function ($host) use ($filterGroups) {
+                return empty(array_diff($filterGroups, $host['groups']));
+            });
+        }
+
+        return $inventory;
     }
 
     /**

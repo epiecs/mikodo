@@ -71,8 +71,8 @@ interface inventoryInterface
     public function setDefaults(array $defaults) : void;
 
     /**
-     * Gets all hosts from the inventory based on the hostnames that are supplied in the
-     * $hosts parameter.
+     * Gets all hosts from the inventory based on the hostnames that are
+     * supplied in the $hosts parameter.
      *
      * @param  array $hosts array containing hostnames that need to be returned
      * @return array        the filtered hostnames from the inventory
@@ -81,15 +81,33 @@ interface inventoryInterface
     public function getHosts(array $hosts) : array;
 
     /**
-     * Gets all hosts from the inventory based on the groupnames that are supplied in the
-     * $groups parameter.
+     * Gets all hosts from the inventory based on the groupnames that are
+     * supplied in the $groups parameter.
      *
-     * @param  array $groups array containing groupnames in wich hosts reside that need to
-     *                       be returned
-     * @return array         the filtered hostnames from the inventory
+     * When an array with filterGroups is provided the inventory will return a
+     * bisection of only those groups that are in both the $groups and
+     * $filterGroups array
+     *
+     * The $groups array fills the resultset with all provided groups and
+     * $filterGroups helps reduce it
+     *
+     * eg. if you request all devices within the group cisco and switches and
+     * wish to use only the devices that are also member of the nexus and europe
+     * groups
+     *
+     * $groups = ['cisco', 'switches']
+     * $filterGroups = ['nexus', 'eu']
+     *
+     * @param  array $groups        array containing groupnames in wich hosts
+     *                              reside that need to be returned
+     *
+     * @param  array $filterGroups  array containing groupnames that are used to
+     *                              narrow down the requested groups
+     *
+     * @return array                the filtered hostnames from the inventory
      */
 
-    public function getGroups(array $groups) : array;
+    public function getGroups(array $groups, array $filterGroups) : array;
 
     /**
      * Returns the full inventory (defaults, groups, hosts) as an array with a top level

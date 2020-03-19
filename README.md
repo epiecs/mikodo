@@ -284,12 +284,35 @@ $baseInventory->setHosts(array $hosts);
 $baseInventory->setGroups(array $groups);
 $baseInventory->setDefaults(array $defaults);
 
-// Getting/fetching the inventory
+// Get all hosts
 $baseInventory->getHosts(array $hosts);
-$baseInventory->getGroups(array $groups);
 
-// Get the full inventory
+// Get all groups provided in the $groups array
+$baseInventory->getGroups(array $groups);
+// Get all groups provided in the $groups array and reduce with the groups within the $filterGroups array
+$baseInventory->getGroups(array $groups, array $filterGroups);
+
+// Get the full inventory. Usefull if you need to modify it yourself.
 $baseInventory->getInventory();
+```
+
+__getGroups method__
+
+When using the getGroups method there is an optional parameter called $filterGroups.
+
+Gets all hosts from the inventory based on the groupnames that are supplied in the $groups parameter.
+
+When an array with filterGroups is provided the inventory will return a bisection of only those groups that are in both the $groups and $filterGroups array
+
+The $groups array fills the resultset with all provided groups and $filterGroups helps reduce it
+
+eg. if you request all devices within the group cisco and switches and wish to use only the devices that are also member of the nexus and europe groups
+
+```php
+$groups = ['cisco', 'switches'];
+$filterGroups = ['nexus', 'eu'];
+
+$baseInventory->getGroups(array $groups, array $filterGroups);
 ```
 
 ### PhpIpam inventory
