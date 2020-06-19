@@ -160,8 +160,16 @@ class Mikodo
 
             foreach($commands as $command => $output)
             {
-                $this->cli->lightYellow($command);
-                $this->cli->out($output . "\n");
+                if($command == 'error')
+                {
+                    $this->cli->error($command);
+                    $this->cli->out($output . "\n");
+                }
+                else
+                {
+                    $this->cli->comment($command);
+                    $this->cli->out($output . "\n");
+                }
             }
         }
     }
@@ -181,7 +189,6 @@ class Mikodo
     private function run(string $commandType, array $commands) : array
     {
         $results = array();
-        $runId = uniqid("[{$commandType}] :: ");
 
         $this->cli->yellow()->out("Starting mikodo,  " . count($this->inventory) . " queued jobs");
 
@@ -209,9 +216,20 @@ class Mikodo
             if($pid == 0)
             {
                 cli_set_process_title($hostname);
-                $device = new \Epiecs\PhpMiko\ConnectionHandler($deviceDetails);
+                try {
+                    $device = new \Epiecs\PhpMiko\ConnectionHandler($deviceDetails);
+                } catch (\Exception $e) {
+                    $errorResult = $e->getMessage();
+                }
 
-                $result =  $device->$commandType($commands);
+                if(isset($errorResult) && $errorResult != null)
+                {
+                    $result['error'] = $errorResult;
+                }
+                else
+                {
+                    $result = $device->$commandType($commands);
+                }
 
                 socket_write($sockets[$hostname][0], str_pad(serialize($result), $this->bufferSize), $this->bufferSize);
                 socket_close($sockets[$hostname][0]);
