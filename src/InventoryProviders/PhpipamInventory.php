@@ -204,9 +204,21 @@ class PhpipamInventory extends BaseInventory implements InventoryInterface
             $hosts[$ipamDevice['hostname']]['hostname'] = $ipamDevice['ip'];
 
             !in_array($ipamDevice['type'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][]     = $deviceTypes[$ipamDevice['type']] : false;
-            !in_array($ipamDevice['sections'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][] = $sections[$ipamDevice['sections']] : false;
             !in_array($ipamDevice['location'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][] = $locations[$ipamDevice['location']] : false;
             !in_array($ipamDevice['rack'], [0, null]) ? $hosts[$ipamDevice['hostname']]['groups'][]     = $racks[$ipamDevice['rack']] : false;
+
+            // A device can be assigned to multiple sections. Sections are delimited with ;
+            if(!in_array($ipamDevice['sections'], [0, null]))
+            {
+                foreach(explode(";", $ipamDevice['sections']) as $section)
+                {
+                    $hosts[$ipamDevice['hostname']]['groups'][] = $sections[$section];
+                }
+            }
+            else
+            {
+                $hosts[$ipamDevice['hostname']]['groups'][] = false;
+            }
 
             foreach($customFields as $fieldName => $ipamFieldName)
             {
