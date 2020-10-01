@@ -65,6 +65,15 @@ class PhpipamInventory extends BaseInventory implements InventoryInterface
     );
 
     /**
+     * These fields will be applied to the host AND as a group.
+     * @var array
+     */
+
+    var $sharedFields = array(
+        'device_type'
+    );
+
+    /**
      * Initialize the connection to PhpIpam. On construction it loads all devices into the
      * inventory.
      *
@@ -229,11 +238,18 @@ class PhpipamInventory extends BaseInventory implements InventoryInterface
                  * All other custom fields are applied as a group on top of the other known groups.
                  *
                  * If a custom field is found with the name groups (custom_groups in phpipam) it will be split (",") and trimmed and each value will be added as a group
+                 *
+                 * Some fields are used for the host and used for groups so that sorting is possible. An example is device_type
                  */
 
                 if(in_array($fieldName, $this->hostFields))
                 {
                     $ipamDevice[$ipamFieldName] != null ? $hosts[$ipamDevice['hostname']][$fieldName] = $ipamDevice[$ipamFieldName] : false;
+
+                    if(in_array($fieldName, $this->sharedFields))
+                    {
+                        $hosts[$ipamDevice['hostname']]['groups'][] = $ipamDevice[$ipamFieldName];
+                    }
                 }
                 else
                 {
